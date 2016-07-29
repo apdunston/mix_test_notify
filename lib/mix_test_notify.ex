@@ -1,0 +1,2 @@
+defmodule MixTestNotify do
+end
