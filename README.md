@@ -12,20 +12,27 @@ Add it to your dependencies
 ```elixir
 # mix.exs
 def deps do
-  [{:mix_test_watch, "~> 0.2", only: :dev}]
+  [{:mix_test_notify, path: "path/to/mix_test_notify"}]
 end
 ```
-
-Get those dependencies
-```
-mix deps.get
-```
-
 
 Enjoy!
 ```
 mix test.notify
 ```
+
+## Optional Configuration
+
+```elixir
+mix.exs
+
+config :mix_test_notify, :sound, true
+config :mix_test_notify, :win_sound, "Blow"
+config :mix_test_notify, :fail_sound, "Basso"
+config :mix_test_notify, :win_title, "Win"
+config :mix_test_notify, :fail_title, "Fail"
+```
+Available sounds are `Basso`, `Blow`, `Bottle`, `Frog`, `Funk`, `Glass`, `Hero`, `Morse`, `Ping`, `Pop`, `Purr`, `Sosumi`, `Submarine`, `Tink`, or anything in `~/Library/Sounds`
 
 # License
 ```
