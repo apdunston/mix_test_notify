@@ -1,6 +1,8 @@
 MixTestNotify
 =============
 
+OSX notifications for `mix test`. Best when used with the most excellent [mix test.watch](https://github.com/lpil/mix-test.watch).
+
 # Requirements
 
 You must have OSX Mavericks or beyond.
@@ -19,6 +21,31 @@ end
 Enjoy!
 ```
 mix test.notify
+```
+
+## Mix Test.Watch
+https://github.com/lpil/mix-test.watch
+This runs tests in the background. Use the two together for maximum goodness.
+
+```elixir
+# mix.exs
+
+def deps do
+  [
+    {:mix_test_notify, path: "path/to/mix_test_notify"},
+    {:mix_test_watch, "~> 0.2", only: :dev}
+  ]
+end
+
+config :mix_test_watch, tasks: ["test.notify"]
+```
+
+```
+mix deps.get
+```
+
+```
+mix test.watch
 ```
 
 ## Optional Configuration
