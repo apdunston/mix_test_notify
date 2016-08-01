@@ -14,7 +14,7 @@ Add it to your dependencies
 ```elixir
 # mix.exs
 def deps do
-  [{:mix_test_notify, path: "path/to/mix_test_notify"}]
+  [{:mix_test_notify, path: "path/to/mix_test_notify", only: :dev}]
 end
 ```
 
@@ -36,7 +36,10 @@ def deps do
     {:mix_test_watch, "~> 0.2", only: :dev}
   ]
 end
+```
 
+```elixir
+# config.exs
 config :mix_test_watch, tasks: ["test.notify"]
 ```
 
