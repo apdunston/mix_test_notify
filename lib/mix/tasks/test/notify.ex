@@ -63,6 +63,6 @@ defmodule Mix.Tasks.Test.Notify do
   defp fail_title, do: config_or_default(:fail_title, "Fail")
 
   defp mix_test_regex do
-    ~r/Finished in .* seconds \(.*s on load, .*s on tests\)\s*\n(\d+) tests, (\d+) failure/
+    ~r/Finished in .* seconds.*\n(\d+) tests, (\d+) failure/
   end
 end
