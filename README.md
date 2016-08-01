@@ -32,7 +32,7 @@ This runs tests in the background. Use the two together for maximum goodness.
 
 def deps do
   [
-    {:mix_test_notify, path: "path/to/mix_test_notify"},
+    {:mix_test_notify, "~> 0.0.3"},
     {:mix_test_watch, "~> 0.2", only: :dev}
   ]
 end
