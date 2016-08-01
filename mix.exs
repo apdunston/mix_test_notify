@@ -5,9 +5,9 @@ defmodule MixTestNotify.Mixfile do
     [app: :mix_test_notify,
      version: "0.0.1",
      elixir: "~> 1.0",
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     deps: deps]
+     description: description(),
+     package: package(),
+     deps: deps()]
   end
 
   # Configuration for the OTP application
@@ -30,5 +30,17 @@ defmodule MixTestNotify.Mixfile do
     [{:mix_test_watch, "~> 0.2", only: :dev}]
   end
 
+  defp description do
+    "OSX notifications for mix test. Best when used with the most excellent mix test.watch."
+  end
+
+  defp package do
+    [
+      name: :mix_test_notify,
+      maintainers: ["Adrian Dunston"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/apdunston/mix_test_notify"}
+    ]
+  end
 
 end
