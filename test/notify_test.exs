@@ -7,6 +7,13 @@ defmodule NotifyTest do
       ipsum) end)
   end
 
+  test "compile_error_check" do
+    assert compile_error_check(real_world_input) == {:compiles, real_world_input}
+    assert compile_error_check(real_world_compile_error) == {:error, "Compile", "test/thing_test.exs:111:"}
+    assert compile_error_check(real_world_syntax_error) == {:error, "Syntax", "test/thing_test.exs:113:"}
+    assert compile_error_check(real_world_key_error) == {:error, "Key", "key :group_id not found"}
+  end
+
   test "get_tests_failures" do
     string = ipsum <> "Finished in 0.05 seconds (0.05s on load, 0.00s on tests)\n1 tests, 0 failures"
     assert get_tests_failures(string) == ["1","0"]
@@ -34,21 +41,21 @@ defmodule NotifyTest do
     assert message(525600, 525600) == "525600 Passed, 525600 Failed"
   end
 
-  test "osascript" do
-    assert osascript(0, 0, false) ==
+  test "completed_test_applescript" do
+    assert completed_test_applescript(0, 0, false) ==
       "display notification \"#{message(0, 0)}\"" <>
       " with title \"#{title(0)}\""
 
-    assert osascript(24601, 24601, false) ==
+    assert completed_test_applescript(24601, 24601, false) ==
       "display notification \"#{message(24601, 24601)}\"" <>
       " with title \"#{title(24601)}\""
 
-    assert osascript(0, 0, true) ==
+    assert completed_test_applescript(0, 0, true) ==
       "display notification \"#{message(0, 0)}\"" <>
       " with title \"#{title(0)}\"" <>
       " sound name \"Blow\""
 
-    assert osascript(0, 10, true) ==
+    assert completed_test_applescript(0, 10, true) ==
       "display notification \"#{message(0, 10)}\"" <>
       " with title \"#{title(10)}\"" <>
       " sound name \"Basso\""
@@ -93,6 +100,64 @@ Randomized with seed 104380
     (mix) lib/mix/task.ex:296: Mix.Task.run_task/3
     (mix) lib/mix/cli.ex:58: Mix.CLI.run_task/2
     (elixir) lib/code.ex:363: Code.require_file/2
+"""
+  end
+
+  def real_world_compile_error do
+    ~s"""
+warning: variable key is unused
+  test/thing_test.exs:109
+
+warning: variable key is unused
+  test/thing_test.exs:114
+
+** (CompileError) test/thing_test.exs:111: undefined function has_key?/2
+    (stdlib) lists.erl:1337: :lists.foreach/2
+    (stdlib) erl_eval.erl:670: :erl_eval.do_apply/6
+    (elixir) lib/code.ex:363: Code.require_file/2
+    (elixir) lib/kernel/parallel_require.ex:56: anonymous fn/2 in Kernel.ParallelRequire.spawn_requires/5
+
+
+** (RuntimeError) Invalid input
+    lib/mix/tasks/test/notify.ex:19: Mix.Tasks.Test.Notify.get_tests_failures/1
+    lib/mix/tasks/test/notify.ex:12: Mix.Tasks.Test.Notify.run/1
+    (mix) lib/mix/task.ex:296: Mix.Task.run_task/3
+    (elixir) lib/enum.ex:651: Enum."-each/2-lists^foreach/1-0-"/2
+    (elixir) lib/enum.ex:651: Enum.each/2
+    (mix) lib/mix/task.ex:296: Mix.Task.run_task/3
+    (mix) lib/mix/cli.ex:58: Mix.CLI.run_task/2
+"""
+  end
+
+  def real_world_syntax_error do
+    ~s"""
+** (SyntaxError) test/thing_test.exs:113: syntax error before: t
+    (elixir) lib/code.ex:363: Code.require_file/2
+    (elixir) lib/kernel/parallel_require.ex:56: anonymous fn/2 in Kernel.ParallelRequire.spawn_requires/5
+
+
+** (RuntimeError) Invalid input
+    lib/mix/tasks/test/notify.ex:51: Mix.Tasks.Test.Notify.get_tests_failures/1
+    lib/mix/tasks/test/notify.ex:24: Mix.Tasks.Test.Notify.notify/1
+    (mix) lib/mix/task.ex:296: Mix.Task.run_task/3
+    (elixir) lib/enum.ex:651: Enum."-each/2-lists^foreach/1-0-"/2
+    (elixir) lib/enum.ex:651: Enum.each/2
+    (mix) lib/mix/task.ex:296: Mix.Task.run_task/3
+    (mix) lib/mix/cli.ex:58: Mix.CLI.run_task/2
+"""
+  end
+
+  def real_world_key_error do
+    ~s"""
+** (KeyError) key :group_id not found in: %FunRequest{batch_requests: [], created_at: nil, environment_token: nil, id: "ID", sftp_completed_at: nil}
+    (stdlib) :maps.update(:group_id, "REQUEST GROUP ID", %FunRequest{batch_requests: [], created_at: nil, environment_token: nil, id: "ID", sftp_completed_at: nil})
+    (au) lib/vantiv/litle_request.ex:2: anonymous fn/2 in FunRequest.__struct__/1
+    (elixir) lib/enum.ex:1623: Enum."-reduce/3-lists^foldl/2-0-"/3
+    (au) expanding struct: FunRequest.__struct__/1
+    test/litle_request_test.exs:53: LitleRequestTest."test to_storage_format"/1
+    (elixir) lib/code.ex:363: Code.require_file/2
+    (elixir) lib/kernel/parallel_require.ex:56: anonymous fn/2 in Kernel.ParallelRequire.spawn_requires/5
+
 """
   end
 end

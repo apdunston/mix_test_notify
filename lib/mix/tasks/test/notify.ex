@@ -4,17 +4,52 @@ defmodule Mix.Tasks.Test.Notify do
   @shortdoc "Run mix tests and send an OSX notification."
 
   def run(_args) do
-    { output, _exit_code } = System.cmd("mix", ["test"])
+    { output, _exit_code } = System.cmd("mix", ["test"], stderr_to_stdout: true)
     Mix.shell.info(output)
 
+    output
+    |> compile_error_check
+    |> notify
+  end
+
+  def notify({:error, type, error}) do
+    {type, error}
+    |> sanitize_error
+    |> error_applescript(sound)
+    |> run_applescript
+  end
+
+  def notify({:compiles, output}) do
     [tests, failures] =
       output
       |> get_tests_failures
       |> get_integers
 
     successes = tests - failures
-    System.cmd("osascript", ["-e", osascript(successes, failures, sound)])
+    completed_test_applescript(successes, failures, sound())
+    |> run_applescript
   end
+
+  defp sanitize_error({type, error}), do:
+    {type,  Regex.replace(~r/"/, error, "\\\"")}
+
+  defp error_applescript({type, error}, false), do:
+    "display notification \"#{error}\" with title \"#{type} Error\""
+
+  defp error_applescript({type, error}, true), do:
+    error_applescript({type, error}, false) <> " sound name \"#{fail_sound}\""
+
+  defp run_applescript(applescript), do:
+    System.cmd("osascript", ["-e", applescript])
+
+  def compile_error_check(value) when is_bitstring(value), do:
+    { Regex.run(compile_error_regex, value), value } |> compile_error_check
+
+  def compile_error_check({results, _output}) when is_list(results), do:
+    {:error, Enum.at(results, 1), Enum.at(results, 2)}
+
+  def compile_error_check({nil, output}), do: #!!ADRIAN
+    {:compiles, output}
 
   def get_tests_failures(nil), do: raise "Invalid input"
   def get_tests_failures(value) when is_list(value), do: Enum.drop(value, 1)
@@ -26,31 +61,23 @@ defmodule Mix.Tasks.Test.Notify do
 
   def message(successes, failures), do: "#{successes} Passed, #{failures} Failed"
 
-  def config_or_default(item, default) when is_atom(item) and not is_nil(item) and not is_boolean(item) do
+  def config_or_default(item, default) when is_atom(item) and not is_nil(item) and not is_boolean(item), do:
     config_or_default(Application.get_env(:mix_test_notify, item), default)
-  end
+  def config_or_default(nil, default), do: default
+  def config_or_default(item, _default), do: item
 
-  def config_or_default(nil, default) do
-    default
-  end
+  def completed_test_applescript(successes, 0, true), do:
+    applescript_with_sound(successes, 0, win_sound)
 
-  def config_or_default(item, _default) do
-   item
-  end
+  def completed_test_applescript(successes, failures, true), do:
+    applescript_with_sound(successes, failures, fail_sound)
 
-  def osascript(successes, 0, true), do:
-    osascript_with_sound(successes, 0, win_sound)
-
-  def osascript(successes, failures, true), do:
-    osascript_with_sound(successes, failures, fail_sound)
-
-  def osascript(successes, failures, _sound) do
+  def completed_test_applescript(successes, failures, _sound), do:
     "display notification \"#{message(successes, failures)}\"" <>
       " with title \"#{title(failures)}\""
-  end
 
-  defp osascript_with_sound(successes, failures, name), do:
-    osascript(successes, failures, nil) <> " sound name \"#{name}\""
+  defp applescript_with_sound(successes, failures, name), do:
+    completed_test_applescript(successes, failures, nil) <> " sound name \"#{name}\""
 
   defp get_integers(list = [_tests, _failures]) do
     list |> Enum.map(fn(x) -> x |> Integer.parse |> elem(0) end)
@@ -62,7 +89,7 @@ defmodule Mix.Tasks.Test.Notify do
   defp win_title, do: config_or_default(:win_title, "Win")
   defp fail_title, do: config_or_default(:fail_title, "Fail")
 
-  defp mix_test_regex do
-    ~r/Finished in .* seconds.*\n(\d+) tests, (\d+) failure/
-  end
+  defp mix_test_regex, do: ~r/Finished in .* seconds.*\n(\d+) tests, (\d+) failure/
+
+  defp compile_error_regex, do: ~r/\((Compile|Syntax|Key)Error\) (.*:\d*:|key .* not found)/
 end
