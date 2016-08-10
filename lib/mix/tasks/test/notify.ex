@@ -20,14 +20,18 @@ defmodule Mix.Tasks.Test.Notify do
   end
 
   def notify({:compiles, output}) do
-    [tests, failures] =
-      output
-      |> get_tests_failures
-      |> get_integers
+    try do
+      [tests, failures] =
+        output
+        |> get_tests_failures
+        |> get_integers
 
-    successes = tests - failures
-    completed_test_applescript(successes, failures, sound())
-    |> run_applescript
+      successes = tests - failures
+      completed_test_applescript(successes, failures, sound())
+      |> run_applescript
+    rescue e in RuntimeError ->
+      notify({:error, "Unknown", e.message})
+    end
   end
 
   defp sanitize_error({type, error}), do:
@@ -51,10 +55,11 @@ defmodule Mix.Tasks.Test.Notify do
   def compile_error_check({nil, output}), do: #!!ADRIAN
     {:compiles, output}
 
-  def get_tests_failures(nil), do: raise "Invalid input"
-  def get_tests_failures(value) when is_list(value), do: Enum.drop(value, 1)
   def get_tests_failures(value) when is_bitstring(value), do:
-    mix_test_regex |> Regex.run(value) |> get_tests_failures
+    mix_test_regex |> Regex.run(value) |> do_get_tests_failures
+
+  def do_get_tests_failures(nil), do: raise "Invalid input"
+  def do_get_tests_failures(value) when is_list(value), do: Enum.drop(value, 1)
 
   def title(0), do: win_title
   def title(_failures), do: fail_title
@@ -62,9 +67,9 @@ defmodule Mix.Tasks.Test.Notify do
   def message(successes, failures), do: "#{successes} Passed, #{failures} Failed"
 
   def config_or_default(item, default) when is_atom(item) and not is_nil(item) and not is_boolean(item), do:
-    config_or_default(Application.get_env(:mix_test_notify, item), default)
-  def config_or_default(nil, default), do: default
-  def config_or_default(item, _default), do: item
+    do_config_or_default(Application.get_env(:mix_test_notify, item), default)
+  def do_config_or_default(nil, default), do: default
+  def do_config_or_default(item, _default), do: item
 
   def completed_test_applescript(successes, 0, true), do:
     applescript_with_sound(successes, 0, win_sound)
@@ -72,12 +77,12 @@ defmodule Mix.Tasks.Test.Notify do
   def completed_test_applescript(successes, failures, true), do:
     applescript_with_sound(successes, failures, fail_sound)
 
-  def completed_test_applescript(successes, failures, _sound), do:
+  def completed_test_applescript(successes, failures, false), do:
     "display notification \"#{message(successes, failures)}\"" <>
       " with title \"#{title(failures)}\""
 
   defp applescript_with_sound(successes, failures, name), do:
-    completed_test_applescript(successes, failures, nil) <> " sound name \"#{name}\""
+    completed_test_applescript(successes, failures, false) <> " sound name \"#{name}\""
 
   defp get_integers(list = [_tests, _failures]) do
     list |> Enum.map(fn(x) -> x |> Integer.parse |> elem(0) end)
