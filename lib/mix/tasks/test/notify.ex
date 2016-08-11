@@ -18,9 +18,10 @@ defmodule Mix.Tasks.Test.Notify do
   alias MixTestNotify.ApplescriptNotifier
   alias MixTestNotify.TestOutputParser
 
-  def run(_args) do
+  def run(args) do
     try do
-      mix_test
+      args
+      |> mix_test
       |> output_to_shell
       |> TestOutputParser.error_check
       |> process_notification
@@ -29,8 +30,8 @@ defmodule Mix.Tasks.Test.Notify do
     end
   end
 
-  def mix_test,
-    do: System.cmd("mix", ["test"], stderr_to_stdout: true) |> elem(0)
+  def mix_test(args),
+    do: System.cmd("mix", ["test"|args], stderr_to_stdout: true) |> elem(0)
 
   def output_to_shell(test_output) do
     Mix.shell.info(test_output)

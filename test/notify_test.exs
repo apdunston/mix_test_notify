@@ -1,9 +1,7 @@
 defmodule NotifyTest do
   use ExUnit.Case
-  import Mix.Tasks.Test.Notify
   alias MixTestNotify.TestOutputParser
   alias MixTestNotify.Config
-  alias MixTestNotify.ApplescriptNotifier
 
   test "TestOutputParser.parse raises exception" do
     assert_raise(RuntimeError, fn() ->
