@@ -53,6 +53,10 @@ mix test.watch
 
 ## Optional Configuration
 
+You can turn on sounds by setting the `:sound` config to `true` as below. 
+Default sounds are OSX `Blow` and `Basso`. You can also set the titles for
+your notifications.
+
 ```elixir
 mix.exs
 
@@ -63,6 +67,39 @@ config :mix_test_notify, :win_title, "Win"
 config :mix_test_notify, :fail_title, "Fail"
 ```
 Available sounds are `Basso`, `Blow`, `Bottle`, `Frog`, `Funk`, `Glass`, `Hero`, `Morse`, `Ping`, `Pop`, `Purr`, `Sosumi`, `Submarine`, `Tink`, or anything in `~/Library/Sounds`
+
+## Adding your own ExternalNotifier
+
+Let's say you want to use Growl or some other style of notification. No problem!
+Implement the `ExternalNotifier` behavior like so:
+
+```elixir
+defmodule MyNamespace.MyNotifier do
+  @behaviour MixTestNotify.ExternalNotifier
+
+  def notify(title, message) do
+    notify(:no_sound, title, message, nil)
+  end
+
+  def notify(:sound, title, message, sound) do
+    # TODO - Call your favorite notification system and tell it to make a noise
+  end
+
+  def notify(:no_sound, title, message, _sound) do
+    # TODO - Call your favorite notification system
+  end
+end
+```
+
+Then set your config to use your notifier.
+
+```elixir
+mix.exs
+
+config :mix_test_notify, :external_notifier, MyNamespace.MyNotifier
+```
+
+If you do this, I'd love a pull request so I can add it to the package.
 
 # License
 ```

@@ -1,71 +1,54 @@
 defmodule NotifyTest do
   use ExUnit.Case
   import Mix.Tasks.Test.Notify
+  alias MixTestNotify.TestOutputParser
+  alias MixTestNotify.Config
+  alias MixTestNotify.ApplescriptNotifier
 
-  test "get_tests_failures raises exception" do
-    assert_raise(RuntimeError, fn() -> get_tests_failures(
-      ipsum) end)
+  test "TestOutputParser.parse raises exception" do
+    assert_raise(RuntimeError, fn() ->
+      TestOutputParser.parse(ipsum)
+    end)
   end
 
-  test "compile_error_check" do
-    assert compile_error_check(real_world_input) == {:compiles, real_world_input}
-    assert compile_error_check(real_world_compile_error) == {:error, "Compile", "test/thing_test.exs:111:"}
-    assert compile_error_check(real_world_syntax_error) == {:error, "Syntax", "test/thing_test.exs:113:"}
-    assert compile_error_check(real_world_key_error) == {:error, "Key", "key :group_id not found"}
+  test "TestOutputParser.error_check" do
+    assert TestOutputParser.error_check(real_world_input) == {:no_error, real_world_input}
+    assert TestOutputParser.error_check(real_world_compile_error) == {:error, "Compile Error", "test/thing_test.exs:111:"}
+    assert TestOutputParser.error_check(real_world_syntax_error) == {:error, "Syntax Error", "test/thing_test.exs:113:"}
+    assert TestOutputParser.error_check(real_world_key_error) == {:error, "Key Error", "key :group_id not found"}
   end
 
-  test "get_tests_failures" do
+  test "TestOutputParser.parse" do
     string = ipsum <> "Finished in 0.05 seconds (0.05s on load, 0.00s on tests)\n1 tests, 0 failures"
-    assert get_tests_failures(string) == ["1","0"]
+    assert TestOutputParser.parse(string) == {1, 0}
     string = ipsum <> "Finished in 0.05 seconds (0.05s on load, 0.00s on tests)\n1 tests, 1 failure"
-    assert get_tests_failures(string) == ["1","1"]
+    assert TestOutputParser.parse(string) == {0, 1}
     string = ipsum <> "Finished in 0.05 seconds (0.05s on load, 0.00s on tests)\n212 tests, 117 failures"
-    assert get_tests_failures(string) == ["212","117"]
-    string = ipsum <> "Finished in 0.05 seconds (0.05s on load, 0.00s on tests)\n1 tests, 9999999 failures" <> ipsum
-    assert get_tests_failures(string) == ["1","9999999"]
+    assert TestOutputParser.parse(string) == {95, 117}
+    string = ipsum <> "Finished in 0.05 seconds (0.05s on load, 0.00s on tests)\n9999999 tests, 1 failures" <> ipsum
+    assert TestOutputParser.parse(string) == {9999998, 1}
     string = ipsum <> "Finished in 0.05 seconds (0.05s on load, 0.00s on tests)\n0 tests, 0 failures"
-    assert get_tests_failures(string) == ["0","0"]
-
-    assert get_tests_failures(real_world_input) == ["25", "0"]
+    assert TestOutputParser.parse(string) == {0, 0}
+    assert TestOutputParser.parse(real_world_input) == {25, 0}
   end
 
-  test "title" do
-    assert title(0) == "Win"
-    assert title(1) == "Fail"
-    assert title(525600) == "Fail"
+  test "MixTestNotify.to_title_message_sound integration" do
+    assert MixTestNotify.to_title_message_sound({1, 1}) ==
+      {"Fail", "1 Passed, 1 Failed", "Basso"}
+    assert MixTestNotify.to_title_message_sound({0, 1}) ==
+      {"Fail", "0 Passed, 1 Failed", "Basso"}
+    assert MixTestNotify.to_title_message_sound({1, 0}) ==
+      {"Win", "1 Passed, 0 Failed", "Blow"}
+    assert MixTestNotify.to_title_message_sound({1000, 0}) ==
+      {"Win", "1000 Passed, 0 Failed", "Blow"}
+    assert MixTestNotify.to_title_message_sound({1000, 9999}) ==
+      {"Fail", "1000 Passed, 9999 Failed", "Basso"}
   end
 
-  test "message" do
-    assert message(1, 0) == "1 Passed, 0 Failed"
-    assert message(0, 1) == "0 Passed, 1 Failed"
-    assert message(525600, 525600) == "525600 Passed, 525600 Failed"
-  end
-
-  test "completed_test_applescript" do
-    assert completed_test_applescript(0, 0, false) ==
-      "display notification \"#{message(0, 0)}\"" <>
-      " with title \"#{title(0)}\""
-
-    assert completed_test_applescript(24601, 24601, false) ==
-      "display notification \"#{message(24601, 24601)}\"" <>
-      " with title \"#{title(24601)}\""
-
-    assert completed_test_applescript(0, 0, true) ==
-      "display notification \"#{message(0, 0)}\"" <>
-      " with title \"#{title(0)}\"" <>
-      " sound name \"Blow\""
-
-    assert completed_test_applescript(0, 10, true) ==
-      "display notification \"#{message(0, 10)}\"" <>
-      " with title \"#{title(10)}\"" <>
-      " sound name \"Basso\""
-  end
-
-  test "config_or_default" do
+  test "Config.config_or_default" do
     Application.put_env(:mix_test_notify, :foo, "alpha")
-
-    assert config_or_default(:foo, "bravo") == "alpha"
-    assert config_or_default(:bar, "bravo") == "bravo"
+    assert Config.config_or_default(:foo, "bravo") == "alpha"
+    assert Config.config_or_default(:bar, "bravo") == "bravo"
   end
 
   def ipsum do
