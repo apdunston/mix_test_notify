@@ -3,6 +3,8 @@ MixTestNotify
 
 OSX notifications for `mix test`. Best when used with the most excellent [mix test.watch](https://github.com/lpil/mix-test.watch).
 
+![Usage Demo](https://cloud.githubusercontent.com/assets/1875157/17599747/8f893db6-5fce-11e6-8b02-fd6da97db414.gif)
+
 # Requirements
 
 You must have OSX Mavericks or beyond.
