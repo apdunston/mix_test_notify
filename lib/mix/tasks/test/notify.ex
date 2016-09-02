@@ -14,8 +14,7 @@ defmodule Mix.Tasks.Test.Notify do
   @shortdoc "Run mix tests and send an OSX notification."
 
   use Mix.Task
-  import MixTestNotify.Config, only: [sound?: 0, fail_sound: 0]
-  alias MixTestNotify.ApplescriptNotifier
+  import MixTestNotify.Config, only: [fail_sound: 0]
   alias MixTestNotify.TestOutputParser
 
   def run(args) do
@@ -26,7 +25,7 @@ defmodule Mix.Tasks.Test.Notify do
       |> TestOutputParser.error_check
       |> process_notification
     rescue e in RuntimeError ->
-      ApplescriptNotifier.notify(sound?, "Unknown Error", e.message, fail_sound)
+      MixTestNotify.notify("Unknown Error", e.message, fail_sound)
     end
   end
 
@@ -39,8 +38,8 @@ defmodule Mix.Tasks.Test.Notify do
   end
 
   def process_notification({:error, title, message}),
-    do: ApplescriptNotifier.notify(sound?, title, message, fail_sound)
+    do: MixTestNotify.notify(title, message, fail_sound)
   def process_notification({:no_error, output}),
-    do: MixTestNotify.notify(output)
+    do: MixTestNotify.notify_of_output(output)
 
 end

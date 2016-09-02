@@ -30,6 +30,7 @@ defmodule MixTestNotify.Mixfile do
     [
       {:mix_test_watch, "~> 0.2", only: :dev},
       {:dogma, "~> 0.1", only: :dev},
+      {:notifier, path: "/Users/dunston/dev/notifier"}
     ]
   end
 

@@ -6,6 +6,7 @@ defmodule MixTestNotify.Config do
     and not is_boolean(item), do:
     do_config_or_default(Application.get_env(:mix_test_notify, item), default)
 
+  def use_sound?, do: config_or_default(:sound, false)
   def sound?, do: :sound |> config_or_default(false) |> do_sound?
 
   def win_sound, do: config_or_default(:win_sound, "Blow")
