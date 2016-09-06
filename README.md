@@ -16,7 +16,7 @@ Add it to your dependencies
 ```elixir
 # mix.exs
 def deps do
-  [{:mix_test_notify, "~> 0.0.3", only: :dev}]
+  [{:mix_test_notify, "~> 0.1.0", only: :dev}]
 end
 ```
 
@@ -34,7 +34,7 @@ This runs tests in the background. Use the two together for maximum goodness.
 
 def deps do
   [
-    {:mix_test_notify, "~> 0.0.3", only: :dev},
+    {:mix_test_notify, "~> 0.1.0", only: :dev},
     {:mix_test_watch, "~> 0.2", only: :dev}
   ]
 end
@@ -69,39 +69,6 @@ config :mix_test_notify, :win_title, "Win"
 config :mix_test_notify, :fail_title, "Fail"
 ```
 Available sounds are `Basso`, `Blow`, `Bottle`, `Frog`, `Funk`, `Glass`, `Hero`, `Morse`, `Ping`, `Pop`, `Purr`, `Sosumi`, `Submarine`, `Tink`, or anything in `~/Library/Sounds`
-
-## Adding your own ExternalNotifier
-
-Let's say you want to use Growl or some other style of notification. No problem!
-Implement the `ExternalNotifier` behavior like so:
-
-```elixir
-defmodule MyNamespace.MyNotifier do
-  @behaviour MixTestNotify.ExternalNotifier
-
-  def notify(title, message) do
-    notify(:no_sound, title, message, nil)
-  end
-
-  def notify(:sound, title, message, sound) do
-    # TODO - Call your favorite notification system and tell it to make a noise
-  end
-
-  def notify(:no_sound, title, message, _sound) do
-    # TODO - Call your favorite notification system
-  end
-end
-```
-
-Then set your config to use your notifier.
-
-```elixir
-mix.exs
-
-config :mix_test_notify, :external_notifier, MyNamespace.MyNotifier
-```
-
-If you do this, I'd love a pull request so I can add it to the package.
 
 # License
 ```
