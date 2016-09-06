@@ -18,7 +18,7 @@ defmodule Mix.Tasks.Test.Notify do
       |> TestOutputParser.error_check
       |> process_notification
     rescue e in RuntimeError ->
-      MixTestNotify.notify("Unknown Error", e.message, fail_sound)
+      MixTestNotify.notify("Unknown Error", e.message, fail_sound, fail_icon)
     end
   end
 
