@@ -17,6 +17,14 @@ defmodule MixTestNotify.Config do
 
   def fail_title, do: config_or_default(:fail_title, "Fail")
 
+  def win_icon do
+    Application.app_dir(:mix_test_notify, "priv/icons/checkmark.png")
+  end
+
+  def fail_icon do
+    Application.app_dir(:mix_test_notify, "priv/icons/x.png")
+  end
+
   defp do_config_or_default(nil, default), do: default
   defp do_config_or_default(item, _default), do: item
 

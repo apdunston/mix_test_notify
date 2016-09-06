@@ -2,19 +2,12 @@ defmodule Mix.Tasks.Test.Notify do
   @moduledoc """
   OSX notifications for `mix test`. Best when used with the most excellent
   [mix test.watch](https://github.com/lpil/mix-test.watch).
-
-  You can also call
-  ```
-  Mix.Tasks.Test.Notify.notify({:error, "Error type", "message body"})
-  ```
-  to send an error notification directly
-
   """
 
   @shortdoc "Run mix tests and send an OSX notification."
 
   use Mix.Task
-  import MixTestNotify.Config, only: [fail_sound: 0]
+  import MixTestNotify.Config, only: [fail_sound: 0, fail_icon: 0]
   alias MixTestNotify.TestOutputParser
 
   def run(args) do
@@ -38,7 +31,7 @@ defmodule Mix.Tasks.Test.Notify do
   end
 
   def process_notification({:error, title, message}),
-    do: MixTestNotify.notify(title, message, fail_sound)
+    do: MixTestNotify.notify(title, message, fail_sound, fail_icon)
   def process_notification({:no_error, output}),
     do: MixTestNotify.notify_of_output(output)
 

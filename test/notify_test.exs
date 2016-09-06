@@ -30,17 +30,17 @@ defmodule NotifyTest do
     assert TestOutputParser.parse(real_world_input) == {25, 0}
   end
 
-  test "MixTestNotify.to_title_message_sound integration" do
-    assert MixTestNotify.to_title_message_sound({1, 1}) ==
-      {"Fail", "1 Passed, 1 Failed", "Basso"}
-    assert MixTestNotify.to_title_message_sound({0, 1}) ==
-      {"Fail", "0 Passed, 1 Failed", "Basso"}
-    assert MixTestNotify.to_title_message_sound({1, 0}) ==
-      {"Win", "1 Passed, 0 Failed", "Blow"}
-    assert MixTestNotify.to_title_message_sound({1000, 0}) ==
-      {"Win", "1000 Passed, 0 Failed", "Blow"}
-    assert MixTestNotify.to_title_message_sound({1000, 9999}) ==
-      {"Fail", "1000 Passed, 9999 Failed", "Basso"}
+  test "MixTestNotify.to_title_message_sound_icon integration" do
+    assert MixTestNotify.to_title_message_sound_icon({1, 1}) ==
+      {"Fail", "1 Passed, 1 Failed", "Basso", Application.app_dir(:mix_test_notify, "priv/icons/x.png")}
+    assert MixTestNotify.to_title_message_sound_icon({0, 1}) ==
+      {"Fail", "0 Passed, 1 Failed", "Basso", Application.app_dir(:mix_test_notify, "priv/icons/x.png")}
+    assert MixTestNotify.to_title_message_sound_icon({1, 0}) ==
+      {"Win", "1 Passed, 0 Failed", "Blow", Application.app_dir(:mix_test_notify, "priv/icons/checkmark.png")}
+    assert MixTestNotify.to_title_message_sound_icon({1000, 0}) ==
+      {"Win", "1000 Passed, 0 Failed", "Blow", Application.app_dir(:mix_test_notify, "priv/icons/checkmark.png")}
+    assert MixTestNotify.to_title_message_sound_icon({1000, 9999}) ==
+      {"Fail", "1000 Passed, 9999 Failed", "Basso", Application.app_dir(:mix_test_notify, "priv/icons/x.png")}
   end
 
   test "Config.config_or_default" do
