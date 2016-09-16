@@ -40,7 +40,7 @@ defmodule MixTestNotify.TestOutputParser do
     list |> Enum.map(fn(x) -> x |> Integer.parse |> elem(0) end)
   end
 
-  defp mix_test_regex, do: ~r/Finished in .* seconds.*\n(\d+) tests, (\d+) failure/
+  defp mix_test_regex, do: ~r/Finished in .* seconds.*\n(\d+) tests?, (\d+) failure/
 
   defp compile_error_regex, do: ~r/\((Compile|Syntax|Key)Error\) (.*:\d*:|key .* not found)/
 
