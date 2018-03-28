@@ -30,7 +30,7 @@ defmodule MixTestNotify.Mixfile do
     [
       {:mix_test_watch, "~> 0.2", only: :dev},
       {:dogma, "~> 0.1", only: :dev},
-      {:notifier, "~> 0.0.1"},
+      {:notifier, "~> 0.1.0"},
       {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
