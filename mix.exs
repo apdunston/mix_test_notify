@@ -3,7 +3,7 @@ defmodule MixTestNotify.Mixfile do
 
   def project do
     [app: :mix_test_notify,
-     version: "0.2.0",
+     version: "0.2.1",
      elixir: "~> 1.2",
      description: description(),
      package: package(),

@@ -22,9 +22,9 @@ defmodule MixTestNotify do
   end
   
   def notify({title, message, sound, icon}), 
-    do: IO.puts(icon) && notify(title, message, sound, icon)
+    do: notify(title, message, sound, icon)
   def notify(title, message, sound, icon),
-    do: IO.puts(icon) && do_notify(Config.use_sound?, title, message, sound, icon)
+    do: do_notify(Config.use_sound?, title, message, sound, icon)
   
   defp do_notify(false, title, message, _, icon),
     do: Notifier.notify(%{title: title, message: message, icon: icon})
