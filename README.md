@@ -16,7 +16,7 @@ Add it to your dependencies
 ```elixir
 # mix.exs
 def deps do
-  [{:mix_test_notify, "~> 0.1.0", only: :dev}]
+  [{:mix_test_notify, "~> 0.2.0", only: :dev}]
 end
 ```
 
@@ -34,7 +34,7 @@ This runs tests in the background. Use the two together for maximum goodness.
 
 def deps do
   [
-    {:mix_test_notify, "~> 0.2.0", only: :dev},
+    {:mix_test_notify, "~> 0.2.0", only: [:dev, :test]},
     {:mix_test_watch, "~> 0.2", only: :dev}
   ]
 end
